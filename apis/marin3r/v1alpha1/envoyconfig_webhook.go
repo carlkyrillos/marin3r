@@ -18,11 +18,11 @@ package v1alpha1
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 
 	"github.com/3scale-ops/basereconciler/util"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -91,48 +91,48 @@ func (r *EnvoyConfig) ValidateResources() error {
 
 		switch res.Type {
 
-		case envoy.Secret:
+		case apishelper.Secret:
 			if res.GenerateFromTlsSecret == nil {
-				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' cannot be empty for type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' cannot be empty for type '%s'", apishelper.Secret))
 			}
 			if res.Value != nil {
-				errList = append(errList, fmt.Errorf("'value' cannot be used for type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("'value' cannot be used for type '%s'", apishelper.Secret))
 			}
 			if res.GenerateFromEndpointSlices != nil {
-				errList = append(errList, fmt.Errorf("'generateFromEndpointSlice' can only be used type '%s'", envoy.Endpoint))
+				errList = append(errList, fmt.Errorf("'generateFromEndpointSlice' can only be used type '%s'", apishelper.Endpoint))
 			}
 
-		case envoy.Endpoint:
+		case apishelper.Endpoint:
 			if res.GenerateFromEndpointSlices != nil && res.Value != nil {
-				errList = append(errList, fmt.Errorf("only one of 'generateFromEndpointSlice', 'value' allowed for type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("only one of 'generateFromEndpointSlice', 'value' allowed for type '%s'", apishelper.Secret))
 			}
 			if res.GenerateFromEndpointSlices == nil && res.Value == nil {
-				errList = append(errList, fmt.Errorf("one of 'generateFromEndpointSlice', 'value' must be set for type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("one of 'generateFromEndpointSlice', 'value' must be set for type '%s'", apishelper.Secret))
 			}
 			if res.Value != nil {
-				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, r.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
+				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, r.GetEnvoyAPIVersion(), apishelper.Type(res.Type)); err != nil {
 					errList = append(errList, err)
 				}
 			}
 			if res.GenerateFromTlsSecret != nil {
-				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' can only be used type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' can only be used type '%s'", apishelper.Secret))
 			}
 			if res.Blueprint != nil {
-				errList = append(errList, fmt.Errorf("'blueprint' can only be used type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("'blueprint' can only be used type '%s'", apishelper.Secret))
 			}
 
 		default:
 			if res.GenerateFromEndpointSlices != nil {
-				errList = append(errList, fmt.Errorf("'generateFromEndpointSlice' can only be used type '%s'", envoy.Endpoint))
+				errList = append(errList, fmt.Errorf("'generateFromEndpointSlice' can only be used type '%s'", apishelper.Endpoint))
 			}
 			if res.GenerateFromTlsSecret != nil {
-				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' can only be used type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' can only be used type '%s'", apishelper.Secret))
 			}
 			if res.Blueprint != nil {
-				errList = append(errList, fmt.Errorf("'blueprint' cannot be empty for type '%s'", envoy.Secret))
+				errList = append(errList, fmt.Errorf("'blueprint' cannot be empty for type '%s'", apishelper.Secret))
 			}
 			if res.Value != nil {
-				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, r.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
+				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, r.GetEnvoyAPIVersion(), apishelper.Type(res.Type)); err != nil {
 					errList = append(errList, err)
 				}
 			} else {
@@ -153,37 +153,37 @@ func (r *EnvoyConfig) ValidateEnvoyResources() error {
 	errList := []error{}
 
 	for _, endpoint := range r.Spec.EnvoyResources.Endpoints {
-		if err := envoy_resources.Validate(endpoint.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Endpoint); err != nil {
+		if err := envoy_resources.Validate(endpoint.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), apishelper.Endpoint); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
 	for _, cluster := range r.Spec.EnvoyResources.Clusters {
-		if err := envoy_resources.Validate(cluster.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Cluster); err != nil {
+		if err := envoy_resources.Validate(cluster.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), apishelper.Cluster); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
 	for _, route := range r.Spec.EnvoyResources.Routes {
-		if err := envoy_resources.Validate(route.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Route); err != nil {
+		if err := envoy_resources.Validate(route.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), apishelper.Route); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
 	for _, route := range r.Spec.EnvoyResources.ScopedRoutes {
-		if err := envoy_resources.Validate(route.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.ScopedRoute); err != nil {
+		if err := envoy_resources.Validate(route.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), apishelper.ScopedRoute); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
 	for _, listener := range r.Spec.EnvoyResources.Listeners {
-		if err := envoy_resources.Validate(listener.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Listener); err != nil {
+		if err := envoy_resources.Validate(listener.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), apishelper.Listener); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
 	for _, runtime := range r.Spec.EnvoyResources.Runtimes {
-		if err := envoy_resources.Validate(runtime.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Runtime); err != nil {
+		if err := envoy_resources.Validate(runtime.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), apishelper.Runtime); err != nil {
 			errList = append(errList, err)
 		}
 	}

@@ -2,10 +2,10 @@ package discoveryservice
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"testing"
 
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	testutil "github.com/3scale-ops/marin3r/pkg/util/test"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
@@ -31,11 +31,11 @@ func TestCache_SetSnapshot(t *testing.T) {
 			fields: fields{v3: cache_v3.NewSnapshotCache(true, cache_v3.IDHash{}, nil)},
 			args: args{
 				nodeID: "node",
-				snap: NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+				snap: NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"}}),
 			},
 			wantErr: false,
-			wantSnap: NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+			wantSnap: NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 				&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 			}),
 		},
@@ -71,13 +71,13 @@ func TestCache_GetSnapshot(t *testing.T) {
 			name: "Get the snapshot from the cache",
 			cache: func() Cache {
 				c := NewCache()
-				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}))
 				return c
 			}(),
 			args: args{nodeID: "node"},
-			want: NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+			want: NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 				&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 			}),
 			wantErr: false,
@@ -86,7 +86,7 @@ func TestCache_GetSnapshot(t *testing.T) {
 			name: "Snapshot does not exist for given nodeID, error returned",
 			cache: func() Cache {
 				c := NewCache()
-				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}))
 				return c
@@ -124,7 +124,7 @@ func TestCache_ClearSnapshot(t *testing.T) {
 			name: "Snapshot deleted for the given nodeID",
 			cache: func() Cache {
 				c := NewCache()
-				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}))
 				return c

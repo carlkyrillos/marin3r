@@ -18,13 +18,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_bootstrap "github.com/3scale-ops/marin3r/pkg/envoy/bootstrap"
 	envoy_bootstrap_options "github.com/3scale-ops/marin3r/pkg/envoy/bootstrap/options"
 	"github.com/3scale-ops/marin3r/pkg/envoy/container/defaults"
@@ -94,7 +94,7 @@ func runInitManager(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 
-	envoyAPI, err := envoy.ParseAPIVersion(initmgrAPIVersion)
+	envoyAPI, err := apishelper.ParseAPIVersion(initmgrAPIVersion)
 	if err != nil {
 		setupLog.Error(err, "error parsing '--api-version' flag")
 		os.Exit(-1)

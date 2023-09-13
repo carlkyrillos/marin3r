@@ -1,10 +1,10 @@
 package discoveryservice
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"testing"
 
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
 	testutil "github.com/3scale-ops/marin3r/pkg/util/test"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -18,8 +18,8 @@ import (
 
 func TestSnapshot_SetResources(t *testing.T) {
 	type args struct {
-		rType     envoy.Type
-		resources []envoy.Resource
+		rType     apishelper.Type
+		resources []apishelper.Resource
 	}
 	tests := []struct {
 		name     string
@@ -31,8 +31,8 @@ func TestSnapshot_SetResources(t *testing.T) {
 			name:     "Writes resources in the snapshot",
 			snapshot: NewSnapshot(),
 			args: args{
-				rType: envoy.Endpoint,
-				resources: []envoy.Resource{
+				rType: apishelper.Endpoint,
+				resources: []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				},
 			},
@@ -57,21 +57,21 @@ func TestSnapshot_SetResources(t *testing.T) {
 
 func TestSnapshot_GetResources(t *testing.T) {
 	type args struct {
-		rType envoy.Type
+		rType apishelper.Type
 	}
 	tests := []struct {
 		name     string
 		snapshot xdss.Snapshot
 		args     args
-		want     map[string]envoy.Resource
+		want     map[string]apishelper.Resource
 	}{
 		{
 			name: "Returns a map with the snapshot resources",
-			snapshot: NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+			snapshot: NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 				&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 			}),
-			args: args{rType: envoy.Endpoint},
-			want: map[string]envoy.Resource{
+			args: args{rType: apishelper.Endpoint},
+			want: map[string]apishelper.Resource{
 				"endpoint": &envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 			},
 		},
@@ -88,7 +88,7 @@ func TestSnapshot_GetResources(t *testing.T) {
 
 func TestSnapshot_GetVersion(t *testing.T) {
 	type args struct {
-		rType envoy.Type
+		rType apishelper.Type
 	}
 	tests := []struct {
 		name     string
@@ -98,18 +98,18 @@ func TestSnapshot_GetVersion(t *testing.T) {
 	}{
 		{
 			name: "Returns the snapshot's version for the given resource type",
-			snapshot: NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+			snapshot: NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 				&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 			}),
-			args: args{envoy.Endpoint},
+			args: args{apishelper.Endpoint},
 			want: "845f965864",
 		},
 		{
 			name: "Returns the snapshot's version for the given resource type",
-			snapshot: NewSnapshot().SetResources(envoy.Route, []envoy.Resource{
+			snapshot: NewSnapshot().SetResources(apishelper.Route, []apishelper.Resource{
 				&envoy_config_route_v3.RouteConfiguration{Name: "route"},
 			}),
-			args: args{envoy.Route},
+			args: args{apishelper.Route},
 			want: "6645547657",
 		},
 	}
@@ -125,7 +125,7 @@ func TestSnapshot_GetVersion(t *testing.T) {
 
 func TestSnapshot_SetVersion(t *testing.T) {
 	type args struct {
-		rType   envoy.Type
+		rType   apishelper.Type
 		version string
 	}
 	tests := []struct {
@@ -135,10 +135,10 @@ func TestSnapshot_SetVersion(t *testing.T) {
 	}{
 		{
 			name: "Writes the version for the given resource type",
-			snapshot: NewSnapshot().SetResources(envoy.Route, []envoy.Resource{
+			snapshot: NewSnapshot().SetResources(apishelper.Route, []apishelper.Resource{
 				&envoy_config_route_v3.RouteConfiguration{Name: "listener"},
 			}),
-			args: args{rType: envoy.Secret, version: "xxxx"},
+			args: args{rType: apishelper.Secret, version: "xxxx"},
 		},
 	}
 	for _, tt := range tests {
@@ -154,7 +154,7 @@ func TestSnapshot_SetVersion(t *testing.T) {
 
 func Test_v3CacheResources(t *testing.T) {
 	type args struct {
-		rType envoy.Type
+		rType apishelper.Type
 	}
 	tests := []struct {
 		name string
@@ -163,7 +163,7 @@ func Test_v3CacheResources(t *testing.T) {
 	}{
 		{
 			name: "Returns the internal resource type for the v3 secret",
-			args: args{rType: envoy.Secret},
+			args: args{rType: apishelper.Secret},
 			want: int(cache_types.Secret),
 		},
 	}
@@ -178,7 +178,7 @@ func Test_v3CacheResources(t *testing.T) {
 
 func TestSnapshot_recalculateVersion(t *testing.T) {
 	type args struct {
-		rType envoy.Type
+		rType apishelper.Type
 	}
 	tests := []struct {
 		name     string
@@ -196,7 +196,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 				})
 				return s
 			}(),
-			args: args{rType: envoy.Endpoint},
+			args: args{rType: apishelper.Endpoint},
 			want: "845f965864",
 		},
 		{
@@ -209,7 +209,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 				return s
 			}(),
 			args: args{
-				rType: envoy.Cluster,
+				rType: apishelper.Cluster,
 			},
 			want: "568989d74c",
 		},
@@ -231,7 +231,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 				})
 				return s
 			}(),
-			args: args{rType: envoy.Secret},
+			args: args{rType: apishelper.Secret},
 			want: "56c6b8dc45",
 		},
 	}

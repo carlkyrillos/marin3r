@@ -2,10 +2,10 @@ package generators
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"time"
 
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -16,7 +16,7 @@ type GeneratorOptions struct {
 	DiscoveryServiceName      string
 	XdssAdress                string
 	XdssPort                  int
-	EnvoyAPIVersion           envoy.APIVersion
+	EnvoyAPIVersion           apishelper.APIVersion
 	EnvoyNodeID               string
 	EnvoyClusterID            string
 	ClientCertificateName     string

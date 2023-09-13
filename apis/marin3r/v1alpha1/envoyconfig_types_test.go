@@ -17,12 +17,12 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"reflect"
 	"testing"
 
 	reconcilerutil "github.com/3scale-ops/basereconciler/util"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -32,23 +32,23 @@ func TestEnvoyConfig_GetEnvoyAPIVersion(t *testing.T) {
 	cases := []struct {
 		testName                   string
 		envoyConfigRevisionFactory func() *EnvoyConfig
-		expectedResult             envoy.APIVersion
+		expectedResult             apishelper.APIVersion
 	}{
 		{"With default",
 			func() *EnvoyConfig {
 				return &EnvoyConfig{}
 			},
-			envoy.APIv3,
+			apishelper.APIv3,
 		},
 		{"With explicitly set value",
 			func() *EnvoyConfig {
 				return &EnvoyConfig{
 					Spec: EnvoyConfigSpec{
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				}
 			},
-			envoy.APIv3,
+			apishelper.APIv3,
 		},
 	}
 

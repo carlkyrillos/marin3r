@@ -3,12 +3,12 @@ package reconcilers
 import (
 	"context"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"github.com/3scale-ops/marin3r/pkg/reconcilers/marin3r/envoyconfigrevision/discover"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -59,33 +59,33 @@ func (r *CacheReconciler) Reconcile(ctx context.Context, req types.NamespacedNam
 	}
 
 	return &marin3rv1alpha1.VersionTracker{
-		Endpoints:        snap.GetVersion(envoy.Endpoint),
-		Clusters:         snap.GetVersion(envoy.Cluster),
-		Routes:           snap.GetVersion(envoy.Route),
-		ScopedRoutes:     snap.GetVersion(envoy.ScopedRoute),
-		Listeners:        snap.GetVersion(envoy.Listener),
-		Secrets:          snap.GetVersion(envoy.Secret),
-		Runtimes:         snap.GetVersion(envoy.Runtime),
-		ExtensionConfigs: snap.GetVersion(envoy.ExtensionConfig),
+		Endpoints:        snap.GetVersion(apishelper.Endpoint),
+		Clusters:         snap.GetVersion(apishelper.Cluster),
+		Routes:           snap.GetVersion(apishelper.Route),
+		ScopedRoutes:     snap.GetVersion(apishelper.ScopedRoute),
+		Listeners:        snap.GetVersion(apishelper.Listener),
+		Secrets:          snap.GetVersion(apishelper.Secret),
+		Runtimes:         snap.GetVersion(apishelper.Runtime),
+		ExtensionConfigs: snap.GetVersion(apishelper.ExtensionConfig),
 	}, nil
 }
 
 func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources []marin3rv1alpha1.Resource) (xdss.Snapshot, error) {
 	snap := r.xdsCache.NewSnapshot()
 
-	endpoints := make([]envoy.Resource, 0, len(resources))
-	clusters := make([]envoy.Resource, 0, len(resources))
-	routes := make([]envoy.Resource, 0, len(resources))
-	scopedRoutes := make([]envoy.Resource, 0, len(resources))
-	listeners := make([]envoy.Resource, 0, len(resources))
-	runtimes := make([]envoy.Resource, 0, len(resources))
-	extensionConfigs := make([]envoy.Resource, 0, len(resources))
-	secrets := make([]envoy.Resource, 0, len(resources))
+	endpoints := make([]apishelper.Resource, 0, len(resources))
+	clusters := make([]apishelper.Resource, 0, len(resources))
+	routes := make([]apishelper.Resource, 0, len(resources))
+	scopedRoutes := make([]apishelper.Resource, 0, len(resources))
+	listeners := make([]apishelper.Resource, 0, len(resources))
+	runtimes := make([]apishelper.Resource, 0, len(resources))
+	extensionConfigs := make([]apishelper.Resource, 0, len(resources))
+	secrets := make([]apishelper.Resource, 0, len(resources))
 
 	for idx, resourceDefinition := range resources {
 		switch resourceDefinition.Type {
 
-		case envoy.Endpoint:
+		case apishelper.Endpoint:
 
 			if resourceDefinition.GenerateFromEndpointSlices != nil {
 				// Endpoint discovery enabled
@@ -101,7 +101,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 
 			} else {
 				// Raw value provided
-				res := r.generator.New(envoy.Endpoint)
+				res := r.generator.New(apishelper.Endpoint)
 				if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 					return nil,
 						resourceLoaderError(
@@ -112,8 +112,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 				endpoints = append(endpoints, res)
 			}
 
-		case envoy.Cluster:
-			res := r.generator.New(envoy.Cluster)
+		case apishelper.Cluster:
+			res := r.generator.New(apishelper.Cluster)
 			if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 				return nil,
 					resourceLoaderError(
@@ -123,8 +123,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 			}
 			clusters = append(clusters, res)
 
-		case envoy.Route:
-			res := r.generator.New(envoy.Route)
+		case apishelper.Route:
+			res := r.generator.New(apishelper.Route)
 			if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 				return nil,
 					resourceLoaderError(
@@ -134,8 +134,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 			}
 			routes = append(routes, res)
 
-		case envoy.ScopedRoute:
-			res := r.generator.New(envoy.ScopedRoute)
+		case apishelper.ScopedRoute:
+			res := r.generator.New(apishelper.ScopedRoute)
 			if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 				return nil,
 					resourceLoaderError(
@@ -145,8 +145,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 			}
 			scopedRoutes = append(scopedRoutes, res)
 
-		case envoy.Listener:
-			res := r.generator.New(envoy.Listener)
+		case apishelper.Listener:
+			res := r.generator.New(apishelper.Listener)
 			if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 				return nil,
 					resourceLoaderError(
@@ -156,7 +156,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 			}
 			listeners = append(listeners, res)
 
-		case envoy.Secret:
+		case apishelper.Secret:
 			s := &corev1.Secret{}
 			// The webhook will ensure this pointer is set
 			name := *resourceDefinition.GenerateFromTlsSecret
@@ -167,7 +167,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 
 			// Validate secret holds a certificate
 			if s.Type == "kubernetes.io/tls" {
-				var res envoy.Resource
+				var res apishelper.Resource
 
 				switch resourceDefinition.GetBlueprint() {
 				case marin3rv1alpha1.TlsCertificate:
@@ -187,8 +187,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 
 			}
 
-		case envoy.Runtime:
-			res := r.generator.New(envoy.Runtime)
+		case apishelper.Runtime:
+			res := r.generator.New(apishelper.Runtime)
 			if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 				return nil,
 					resourceLoaderError(
@@ -198,8 +198,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 			}
 			runtimes = append(runtimes, res)
 
-		case envoy.ExtensionConfig:
-			res := r.generator.New(envoy.ExtensionConfig)
+		case apishelper.ExtensionConfig:
+			res := r.generator.New(apishelper.ExtensionConfig)
 			if err := r.decoder.Unmarshal(string(resourceDefinition.Value.Raw), res); err != nil {
 				return nil,
 					resourceLoaderError(
@@ -215,14 +215,14 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 
 	}
 
-	snap.SetResources(envoy.Endpoint, endpoints)
-	snap.SetResources(envoy.Cluster, clusters)
-	snap.SetResources(envoy.Route, routes)
-	snap.SetResources(envoy.ScopedRoute, scopedRoutes)
-	snap.SetResources(envoy.Listener, listeners)
-	snap.SetResources(envoy.Secret, secrets)
-	snap.SetResources(envoy.Runtime, runtimes)
-	snap.SetResources(envoy.ExtensionConfig, extensionConfigs)
+	snap.SetResources(apishelper.Endpoint, endpoints)
+	snap.SetResources(apishelper.Cluster, clusters)
+	snap.SetResources(apishelper.Route, routes)
+	snap.SetResources(apishelper.ScopedRoute, scopedRoutes)
+	snap.SetResources(apishelper.Listener, listeners)
+	snap.SetResources(apishelper.Secret, secrets)
+	snap.SetResources(apishelper.Runtime, runtimes)
+	snap.SetResources(apishelper.ExtensionConfig, extensionConfigs)
 
 	return snap, nil
 }
@@ -236,8 +236,8 @@ func resourceLoaderError(req types.NamespacedName, value interface{}, resPath *f
 }
 
 func areDifferent(a, b xdss.Snapshot) bool {
-	for _, rType := range []envoy.Type{envoy.Endpoint, envoy.Cluster, envoy.Route, envoy.ScopedRoute,
-		envoy.Listener, envoy.Secret, envoy.Runtime, envoy.ExtensionConfig} {
+	for _, rType := range []apishelper.Type{apishelper.Endpoint, apishelper.Cluster, apishelper.Route, apishelper.ScopedRoute,
+		apishelper.Listener, apishelper.Secret, apishelper.Runtime, apishelper.ExtensionConfig} {
 		if a.GetVersion(rType) != b.GetVersion(rType) {
 			return true
 		}

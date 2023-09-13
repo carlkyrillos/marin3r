@@ -1,11 +1,10 @@
-package envoy
+package apishelper
 
 import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	_ "github.com/3scale-ops/marin3r/pkg/envoy/protos/v3"
 	"github.com/ghodss/yaml"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -13,7 +12,7 @@ import (
 
 type JSON struct{}
 
-func (s JSON) Marshal(res envoy.Resource) (string, error) {
+func (s JSON) Marshal(res apishelper.Resource) (string, error) {
 
 	opts := protojson.MarshalOptions{UseProtoNames: true, Indent: ""}
 	data, err := opts.Marshal(res)
@@ -32,7 +31,7 @@ func (s JSON) Marshal(res envoy.Resource) (string, error) {
 	return string(data2), nil
 }
 
-func (s JSON) Unmarshal(str string, res envoy.Resource) error {
+func (s JSON) Unmarshal(str string, res apishelper.Resource) error {
 	if res == nil {
 		return fmt.Errorf("resource cannot be nil")
 	}
@@ -46,7 +45,7 @@ func (s JSON) Unmarshal(str string, res envoy.Resource) error {
 
 type B64JSON struct{}
 
-func (s B64JSON) Unmarshal(str string, res envoy.Resource) error {
+func (s B64JSON) Unmarshal(str string, res apishelper.Resource) error {
 	b, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
 		return fmt.Errorf("error decoding base64 string: '%s'", err)
@@ -63,7 +62,7 @@ func (s B64JSON) Unmarshal(str string, res envoy.Resource) error {
 
 type YAML struct{}
 
-func (s YAML) Unmarshal(str string, res envoy.Resource) error {
+func (s YAML) Unmarshal(str string, res apishelper.Resource) error {
 	b, err := yaml.YAMLToJSON([]byte(str))
 	if err != nil {
 		return fmt.Errorf("error converting yaml to json: '%s'", err)

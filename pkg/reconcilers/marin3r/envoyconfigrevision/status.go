@@ -2,13 +2,13 @@ package reconcilers
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"math"
 	"reflect"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
 	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
@@ -105,14 +105,14 @@ func calculateResourcesInSyncCondition(ecr *marin3rv1alpha1.EnvoyConfigRevision,
 
 func calculateRevisionTaintedCondition(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1alpha1.VersionTracker, dStats *stats.Stats, threshold float64) *metav1.Condition {
 
-	if dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Endpoint, ecr.GetEnvoyAPIVersion()), vt.Endpoints) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Cluster, ecr.GetEnvoyAPIVersion()), vt.Clusters) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Route, ecr.GetEnvoyAPIVersion()), vt.Routes) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.ScopedRoute, ecr.GetEnvoyAPIVersion()), vt.ScopedRoutes) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Listener, ecr.GetEnvoyAPIVersion()), vt.Listeners) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Secret, ecr.GetEnvoyAPIVersion()), vt.Secrets) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Runtime, ecr.GetEnvoyAPIVersion()), vt.Runtimes) == threshold ||
-		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.ExtensionConfig, ecr.GetEnvoyAPIVersion()), vt.ExtensionConfigs) == threshold {
+	if dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.Endpoint, ecr.GetEnvoyAPIVersion()), vt.Endpoints) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.Cluster, ecr.GetEnvoyAPIVersion()), vt.Clusters) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.Route, ecr.GetEnvoyAPIVersion()), vt.Routes) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.ScopedRoute, ecr.GetEnvoyAPIVersion()), vt.ScopedRoutes) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.Listener, ecr.GetEnvoyAPIVersion()), vt.Listeners) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.Secret, ecr.GetEnvoyAPIVersion()), vt.Secrets) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.Runtime, ecr.GetEnvoyAPIVersion()), vt.Runtimes) == threshold ||
+		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(apishelper.ExtensionConfig, ecr.GetEnvoyAPIVersion()), vt.ExtensionConfigs) == threshold {
 		return &metav1.Condition{
 			Type:    marin3rv1alpha1.RevisionTaintedCondition,
 			Reason:  "ResourcesFailing",

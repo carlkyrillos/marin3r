@@ -2,16 +2,16 @@ package reconcilers
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"reflect"
 	"testing"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
 	envoy_resources_v3 "github.com/3scale-ops/marin3r/pkg/envoy/resources/v3"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-ops/marin3r/pkg/util/test"
@@ -53,7 +53,7 @@ func TestNewCacheReconciler(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			want: CacheReconciler{
@@ -61,7 +61,7 @@ func TestNewCacheReconciler(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 		},
@@ -106,14 +106,14 @@ func TestCacheReconciler_Reconcile(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
 					{
-						Type:  envoy.Endpoint,
+						Type:  apishelper.Endpoint,
 						Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}"),
 					},
 				},
@@ -123,7 +123,7 @@ func TestCacheReconciler_Reconcile(t *testing.T) {
 
 			want:    &marin3rv1alpha1.VersionTracker{Endpoints: "845f965864"},
 			wantErr: false,
-			wantSnap: xdss_v3.NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+			wantSnap: xdss_v3.NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 				&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 			}),
 		},
@@ -149,10 +149,10 @@ func TestCacheReconciler_Reconcile(t *testing.T) {
 			gotSnap, _ := r.xdsCache.GetSnapshot(tt.args.nodeID)
 			if !testutil.SnapshotsAreEqual(gotSnap, tt.wantSnap) {
 				t.Errorf("CacheReconciler.Reconcile() Snapshot = E:%s C:%s R:%s SR:%s VH:%s L:%s S:%s RU:%s, want E:%s C:%s R:%s SR:%s VH:%s L:%s S:%s RU:%s",
-					gotSnap.GetVersion(envoy.Endpoint), gotSnap.GetVersion(envoy.Cluster), gotSnap.GetVersion(envoy.Route), gotSnap.GetVersion(envoy.ScopedRoute),
-					gotSnap.GetVersion(envoy.VirtualHost), gotSnap.GetVersion(envoy.Listener), gotSnap.GetVersion(envoy.Secret), gotSnap.GetVersion(envoy.Runtime),
-					tt.wantSnap.GetVersion(envoy.Endpoint), tt.wantSnap.GetVersion(envoy.Cluster), tt.wantSnap.GetVersion(envoy.Route), tt.wantSnap.GetVersion(envoy.ScopedRoute),
-					tt.wantSnap.GetVersion(envoy.VirtualHost), tt.wantSnap.GetVersion(envoy.Listener), tt.wantSnap.GetVersion(envoy.Secret), tt.wantSnap.GetVersion(envoy.Runtime),
+					gotSnap.GetVersion(apishelper.Endpoint), gotSnap.GetVersion(apishelper.Cluster), gotSnap.GetVersion(apishelper.Route), gotSnap.GetVersion(apishelper.ScopedRoute),
+					gotSnap.GetVersion(apishelper.VirtualHost), gotSnap.GetVersion(apishelper.Listener), gotSnap.GetVersion(apishelper.Secret), gotSnap.GetVersion(apishelper.Runtime),
+					tt.wantSnap.GetVersion(apishelper.Endpoint), tt.wantSnap.GetVersion(apishelper.Cluster), tt.wantSnap.GetVersion(apishelper.Route), tt.wantSnap.GetVersion(apishelper.ScopedRoute),
+					tt.wantSnap.GetVersion(apishelper.VirtualHost), tt.wantSnap.GetVersion(apishelper.Listener), tt.wantSnap.GetVersion(apishelper.Secret), tt.wantSnap.GetVersion(apishelper.Runtime),
 				)
 			}
 		})
@@ -186,37 +186,37 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
-					{Type: envoy.Cluster, Value: k8sutil.StringtoRawExtension("{\"name\": \"cluster\"}")},
-					{Type: envoy.Route, Value: k8sutil.StringtoRawExtension("{\"name\": \"route\"}")},
-					{Type: envoy.ScopedRoute, Value: k8sutil.StringtoRawExtension("{\"name\": \"scoped_route\"}")},
-					{Type: envoy.Listener, Value: k8sutil.StringtoRawExtension("{\"name\": \"listener\"}")},
-					{Type: envoy.Runtime, Value: k8sutil.StringtoRawExtension("{\"name\": \"runtime\"}")},
+					{Type: apishelper.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
+					{Type: apishelper.Cluster, Value: k8sutil.StringtoRawExtension("{\"name\": \"cluster\"}")},
+					{Type: apishelper.Route, Value: k8sutil.StringtoRawExtension("{\"name\": \"route\"}")},
+					{Type: apishelper.ScopedRoute, Value: k8sutil.StringtoRawExtension("{\"name\": \"scoped_route\"}")},
+					{Type: apishelper.Listener, Value: k8sutil.StringtoRawExtension("{\"name\": \"listener\"}")},
+					{Type: apishelper.Runtime, Value: k8sutil.StringtoRawExtension("{\"name\": \"runtime\"}")},
 				},
 			},
 			want: xdss_v3.NewSnapshot().
-				SetResources(envoy.Endpoint, []envoy.Resource{
+				SetResources(apishelper.Endpoint, []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}).
-				SetResources(envoy.Cluster, []envoy.Resource{
+				SetResources(apishelper.Cluster, []apishelper.Resource{
 					&envoy_config_cluster_v3.Cluster{Name: "cluster"},
 				}).
-				SetResources(envoy.Route, []envoy.Resource{
+				SetResources(apishelper.Route, []apishelper.Resource{
 					&envoy_config_route_v3.RouteConfiguration{Name: "route"},
 				}).
-				SetResources(envoy.ScopedRoute, []envoy.Resource{
+				SetResources(apishelper.ScopedRoute, []apishelper.Resource{
 					&envoy_config_route_v3.ScopedRouteConfiguration{Name: "scoped_route"},
 				}).
-				SetResources(envoy.Listener, []envoy.Resource{
+				SetResources(apishelper.Listener, []apishelper.Resource{
 					&envoy_config_listener_v3.Listener{Name: "listener"},
 				}).
-				SetResources(envoy.Runtime, []envoy.Resource{
+				SetResources(apishelper.Runtime, []apishelper.Resource{
 					&envoy_service_runtime_v3.Runtime{Name: "runtime"},
 				}),
 			wantErr: false,
@@ -228,13 +228,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("giberish")},
+					{Type: apishelper.Endpoint, Value: k8sutil.StringtoRawExtension("giberish")},
 				},
 			},
 			wantErr: true,
@@ -247,13 +247,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Cluster, Value: k8sutil.StringtoRawExtension("giberish")},
+					{Type: apishelper.Cluster, Value: k8sutil.StringtoRawExtension("giberish")},
 				},
 			},
 			wantErr: true,
@@ -266,13 +266,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Route, Value: k8sutil.StringtoRawExtension("giberish")},
+					{Type: apishelper.Route, Value: k8sutil.StringtoRawExtension("giberish")},
 				},
 			},
 			wantErr: true,
@@ -285,13 +285,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.ScopedRoute, Value: k8sutil.StringtoRawExtension("giberish")},
+					{Type: apishelper.ScopedRoute, Value: k8sutil.StringtoRawExtension("giberish")},
 				},
 			},
 			wantErr: true,
@@ -304,13 +304,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Listener, Value: k8sutil.StringtoRawExtension("giberish")},
+					{Type: apishelper.Listener, Value: k8sutil.StringtoRawExtension("giberish")},
 				},
 			},
 			wantErr: true,
@@ -323,13 +323,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Runtime, Value: k8sutil.StringtoRawExtension("giberish")},
+					{Type: apishelper.Runtime, Value: k8sutil.StringtoRawExtension("giberish")},
 				},
 			},
 			wantErr: true,
@@ -346,18 +346,18 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 					Data:       map[string][]byte{"tls.crt": []byte("cert"), "tls.key": []byte("key")},
 				}).Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: apishelper.Secret, GenerateFromTlsSecret: pointer.New("secret")},
 				},
 			},
 			wantErr: false,
 			want: xdss_v3.NewSnapshot().
-				SetResources(envoy.Secret, []envoy.Resource{
+				SetResources(apishelper.Secret, []apishelper.Resource{
 					&envoy_extensions_transport_sockets_tls_v3.Secret{
 						Name: "secret",
 						Type: &envoy_extensions_transport_sockets_tls_v3.Secret_TlsCertificate{
@@ -380,14 +380,14 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 					Data:       map[string][]byte{"tls.crt": []byte("cert"), "tls.key": []byte("key")},
 				}).Build(),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
 					{
-						Type:                  envoy.Secret,
+						Type:                  apishelper.Secret,
 						GenerateFromTlsSecret: pointer.New("secret"),
 						Blueprint:             pointer.New(marin3rv1alpha1.TlsValidationContext),
 					},
@@ -395,7 +395,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			},
 			wantErr: false,
 			want: xdss_v3.NewSnapshot().
-				SetResources(envoy.Secret, []envoy.Resource{
+				SetResources(apishelper.Secret, []apishelper.Resource{
 					&envoy_extensions_transport_sockets_tls_v3.Secret{
 						Name: "secret",
 						Type: &envoy_extensions_transport_sockets_tls_v3.Secret_ValidationContext{
@@ -418,13 +418,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				ctx:       context.TODO(),
 				logger:    ctrl.Log.WithName("test"),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: apishelper.Secret, GenerateFromTlsSecret: pointer.New("secret")},
 				},
 			},
 			wantErr: true,
@@ -437,13 +437,13 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				ctx:       context.TODO(),
 				logger:    ctrl.Log.WithName("test"),
 				xdsCache:  xdss_v3.NewCache(),
-				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, envoy.APIv3),
+				decoder:   envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, apishelper.APIv3),
 				generator: envoy_resources_v3.Generator{},
 			},
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: apishelper.Secret, GenerateFromTlsSecret: pointer.New("secret")},
 				},
 			},
 			wantErr: true,
@@ -469,10 +469,10 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			if !tt.wantErr && !testutil.SnapshotsAreEqual(got, tt.want) {
 				spew.Dump(got)
 				t.Errorf("CacheReconciler.Reconcile() Snapshot = E:%s C:%s R:%s SR:%s VH:%s L:%s S:%s RU:%s, want E:%s C:%s R:%s SR:%s VH:%s L:%s S:%s RU:%s",
-					got.GetVersion(envoy.Endpoint), got.GetVersion(envoy.Cluster), got.GetVersion(envoy.Route), got.GetVersion(envoy.ScopedRoute),
-					got.GetVersion(envoy.VirtualHost), got.GetVersion(envoy.Listener), got.GetVersion(envoy.Secret), got.GetVersion(envoy.Runtime),
-					tt.want.GetVersion(envoy.Endpoint), tt.want.GetVersion(envoy.Cluster), tt.want.GetVersion(envoy.Route), tt.want.GetVersion(envoy.ScopedRoute),
-					tt.want.GetVersion(envoy.VirtualHost), tt.want.GetVersion(envoy.Listener), tt.want.GetVersion(envoy.Secret), tt.want.GetVersion(envoy.Runtime),
+					got.GetVersion(apishelper.Endpoint), got.GetVersion(apishelper.Cluster), got.GetVersion(apishelper.Route), got.GetVersion(apishelper.ScopedRoute),
+					got.GetVersion(apishelper.VirtualHost), got.GetVersion(apishelper.Listener), got.GetVersion(apishelper.Secret), got.GetVersion(apishelper.Runtime),
+					tt.want.GetVersion(apishelper.Endpoint), tt.want.GetVersion(apishelper.Cluster), tt.want.GetVersion(apishelper.Route), tt.want.GetVersion(apishelper.ScopedRoute),
+					tt.want.GetVersion(apishelper.VirtualHost), tt.want.GetVersion(apishelper.Listener), tt.want.GetVersion(apishelper.Secret), tt.want.GetVersion(apishelper.Runtime),
 				)
 			}
 		})

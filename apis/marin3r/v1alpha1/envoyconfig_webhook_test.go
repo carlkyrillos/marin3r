@@ -17,10 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"testing"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -259,7 +259,7 @@ func TestEnvoyConfig_ValidateEnvoyResources(t *testing.T) {
 				Spec: EnvoyConfigSpec{
 					NodeID:        "test",
 					Serialization: pointer.New(envoy_serializer.JSON),
-					EnvoyAPI:      pointer.New(envoy.APIv3),
+					EnvoyAPI:      pointer.New(apishelper.APIv3),
 					EnvoyResources: &EnvoyResources{
 						Clusters: []EnvoyResource{{
 							Name: pointer.New("cluster"),
@@ -277,7 +277,7 @@ func TestEnvoyConfig_ValidateEnvoyResources(t *testing.T) {
 				Spec: EnvoyConfigSpec{
 					NodeID:        "test",
 					Serialization: pointer.New(envoy_serializer.YAML),
-					EnvoyAPI:      pointer.New(envoy.APIv3),
+					EnvoyAPI:      pointer.New(apishelper.APIv3),
 					EnvoyResources: &EnvoyResources{
 						Listeners: []EnvoyResource{{
 							Name: pointer.New("test"),

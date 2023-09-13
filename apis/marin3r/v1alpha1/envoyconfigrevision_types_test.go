@@ -17,10 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"testing"
 
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 )
 
@@ -96,23 +96,23 @@ func TestEnvoyConfigRevision_GetEnvoyAPIVersion(t *testing.T) {
 	cases := []struct {
 		testName                   string
 		envoyConfigRevisionFactory func() *EnvoyConfigRevision
-		expectedResult             envoy.APIVersion
+		expectedResult             apishelper.APIVersion
 	}{
 		{"With default",
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{}
 			},
-			envoy.APIv3,
+			apishelper.APIv3,
 		},
 		{"With explicitly set value",
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Spec: EnvoyConfigRevisionSpec{
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				}
 			},
-			envoy.APIv3,
+			apishelper.APIv3,
 		},
 	}
 

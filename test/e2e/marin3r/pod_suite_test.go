@@ -6,12 +6,12 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net/http"
 	"time"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-ops/marin3r/test/e2e/util"
 	. "github.com/onsi/ginkgo/v2"
@@ -102,13 +102,13 @@ var _ = Describe("Envoy pods", func() {
 
 			By("applying an EnvoyConfig that configures the Pod with a direct response")
 			key := types.NamespacedName{Name: "test-envoyconfig", Namespace: testNamespace}
-			ec = testutil.GenerateEnvoyConfig(key, nodeID, envoy.APIv3,
+			ec = testutil.GenerateEnvoyConfig(key, nodeID, apishelper.APIv3,
 				nil,
 				nil,
-				[]envoy.Resource{testutil.DirectResponseRouteV3("direct_response", "OK")},
+				[]apishelper.Resource{testutil.DirectResponseRouteV3("direct_response", "OK")},
 				// Envoy listeners don't allow bind address changes
-				[]envoy.Resource{testutil.HTTPListener("http", "direct_response", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), nil)},
-				[]envoy.Resource{testutil.HTTPFilterRouter("router_filter")},
+				[]apishelper.Resource{testutil.HTTPListener("http", "direct_response", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), nil)},
+				[]apishelper.Resource{testutil.HTTPFilterRouter("router_filter")},
 				nil,
 				nil,
 			)
@@ -180,13 +180,13 @@ var _ = Describe("Envoy pods", func() {
 			By("updating the envoy resources with a listener that will fail to update")
 			key := types.NamespacedName{Name: "test-envoyconfig", Namespace: testNamespace}
 			patch := client.MergeFrom(ec.DeepCopy())
-			ec.Spec = testutil.GenerateEnvoyConfig(key, nodeID, envoy.APIv3,
+			ec.Spec = testutil.GenerateEnvoyConfig(key, nodeID, apishelper.APIv3,
 				nil,
 				nil,
-				[]envoy.Resource{testutil.DirectResponseRouteV3("direct_response", "OK")},
+				[]apishelper.Resource{testutil.DirectResponseRouteV3("direct_response", "OK")},
 				// Envoy listeners don't allow bind address changes
-				[]envoy.Resource{testutil.HTTPListener("http", "direct_response", "router_filter", testutil.GetAddressV3("0.0.0.0", 30333), nil)},
-				[]envoy.Resource{testutil.HTTPFilterRouter("router_filter")},
+				[]apishelper.Resource{testutil.HTTPListener("http", "direct_response", "router_filter", testutil.GetAddressV3("0.0.0.0", 30333), nil)},
+				[]apishelper.Resource{testutil.HTTPFilterRouter("router_filter")},
 				nil,
 				nil,
 			).Spec
@@ -234,12 +234,12 @@ var _ = Describe("Envoy pods", func() {
 				{
 					key := types.NamespacedName{Name: "test-envoyconfig", Namespace: testNamespace}
 					patch := client.MergeFrom(ec.DeepCopy())
-					ec.Spec = testutil.GenerateEnvoyConfig(key, nodeID, envoy.APIv3,
+					ec.Spec = testutil.GenerateEnvoyConfig(key, nodeID, apishelper.APIv3,
 						nil,
 						nil,
-						[]envoy.Resource{testutil.DirectResponseRouteV3("direct_response", "OK")},
-						[]envoy.Resource{testutil.HTTPListener("https", "direct_response", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), testutil.TransportSocketV3("self-signed-cert"))},
-						[]envoy.Resource{testutil.HTTPFilterRouter("router_filter")},
+						[]apishelper.Resource{testutil.DirectResponseRouteV3("direct_response", "OK")},
+						[]apishelper.Resource{testutil.HTTPListener("https", "direct_response", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), testutil.TransportSocketV3("self-signed-cert"))},
+						[]apishelper.Resource{testutil.HTTPFilterRouter("router_filter")},
 						[]string{"self-signed-cert"},
 						nil,
 					).Spec

@@ -17,8 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -57,7 +57,7 @@ type EnvoyConfigRevisionSpec struct {
 	// +kubebuilder:validation:Enum=v3
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
-	EnvoyAPI *envoy.APIVersion `json:"envoyAPI,omitempty"`
+	EnvoyAPI *apishelper.APIVersion `json:"envoyAPI,omitempty"`
 	// Serialization specicifies the serialization format used to describe the resources. "json" and "yaml"
 	// are supported. "json" is used if unset.
 	// +kubebuilder:validation:Enum=json;b64json;yaml
@@ -155,11 +155,11 @@ type EnvoyConfigRevision struct {
 }
 
 // GetEnvoyAPIVersion returns envoy's API version for the EnvoyConfigRevision
-func (ecr *EnvoyConfigRevision) GetEnvoyAPIVersion() envoy.APIVersion {
+func (ecr *EnvoyConfigRevision) GetEnvoyAPIVersion() apishelper.APIVersion {
 	if ecr.Spec.EnvoyAPI == nil {
-		return envoy.APIv3
+		return apishelper.APIv3
 	}
-	return envoy.APIVersion(*ecr.Spec.EnvoyAPI)
+	return apishelper.APIVersion(*ecr.Spec.EnvoyAPI)
 }
 
 // GetSerialization returns the encoding of the envoy resources.

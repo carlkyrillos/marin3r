@@ -1,10 +1,10 @@
-package envoy
+package apishelper
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"testing"
 	"time"
 
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -192,7 +192,7 @@ var (
 
 func TestJSON_Marshal(t *testing.T) {
 	type args struct {
-		res envoy.Resource
+		res apishelper.Resource
 	}
 	tests := []struct {
 		name    string
@@ -275,13 +275,13 @@ func TestJSON_Marshal(t *testing.T) {
 func TestJSON_Unmarshal(t *testing.T) {
 	type args struct {
 		str string
-		res envoy.Resource
+		res apishelper.Resource
 	}
 	tests := []struct {
 		name    string
 		s       JSON
 		args    args
-		want    envoy.Resource
+		want    apishelper.Resource
 		wantErr bool
 	}{
 		{
@@ -371,13 +371,13 @@ func TestJSON_Unmarshal(t *testing.T) {
 func TestB64JSON_Unmarshal(t *testing.T) {
 	type args struct {
 		str string
-		res envoy.Resource
+		res apishelper.Resource
 	}
 	tests := []struct {
 		name    string
 		s       B64JSON
 		args    args
-		want    envoy.Resource
+		want    apishelper.Resource
 		wantErr bool
 	}{
 		{
@@ -409,13 +409,13 @@ func TestB64JSON_Unmarshal(t *testing.T) {
 func TestYAML_Unmarshal(t *testing.T) {
 	type args struct {
 		str string
-		res envoy.Resource
+		res apishelper.Resource
 	}
 	tests := []struct {
 		name    string
 		s       YAML
 		args    args
-		want    envoy.Resource
+		want    apishelper.Resource
 		wantErr bool
 	}{
 		{

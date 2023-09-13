@@ -19,15 +19,15 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"time"
 
 	"github.com/3scale-ops/basereconciler/util"
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	envoyconfigrevision "github.com/3scale-ops/marin3r/pkg/reconcilers/marin3r/envoyconfigrevision"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	"github.com/go-logr/logr"
@@ -55,7 +55,7 @@ type EnvoyConfigRevisionReconciler struct {
 	Log            logr.Logger
 	Scheme         *runtime.Scheme
 	XdsCache       xdss.Cache
-	APIVersion     envoy.APIVersion
+	APIVersion     apishelper.APIVersion
 	DiscoveryStats *stats.Stats
 }
 
@@ -186,7 +186,7 @@ func (r *EnvoyConfigRevisionReconciler) taintSelf(ctx context.Context, ecr *mari
 	return nil
 }
 
-func filterByAPIVersion(obj runtime.Object, version envoy.APIVersion) bool {
+func filterByAPIVersion(obj runtime.Object, version apishelper.APIVersion) bool {
 	switch o := obj.(type) {
 	case *marin3rv1alpha1.EnvoyConfigRevision:
 		if o.GetEnvoyAPIVersion() == version {
@@ -199,8 +199,8 @@ func filterByAPIVersion(obj runtime.Object, version envoy.APIVersion) bool {
 	}
 }
 
-func filterByAPIVersionPredicate(version envoy.APIVersion,
-	filter func(runtime.Object, envoy.APIVersion) bool) predicate.Predicate {
+func filterByAPIVersionPredicate(version apishelper.APIVersion,
+	filter func(runtime.Object, apishelper.APIVersion) bool) predicate.Predicate {
 
 	return predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
@@ -236,7 +236,7 @@ func (r *EnvoyConfigRevisionReconciler) SecretsEventHandler() handler.EventHandl
 				if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 					// check if the k8s Secret is relevant for this EnvoyConfigRevision
 					for _, s := range ecr.Spec.Resources {
-						if s.Type == envoy.Secret {
+						if s.Type == apishelper.Secret {
 
 							if *s.GenerateFromTlsSecret == secret.GetName() {
 								reconcileRequests = append(reconcileRequests,
@@ -274,7 +274,7 @@ func (r *EnvoyConfigRevisionReconciler) EndpointSlicesEventHandler() handler.Eve
 				if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 					// check if the k8s EndpointSlice is relevant for this EnvoyConfigRevision
 					for _, r := range ecr.Spec.Resources {
-						if r.Type == envoy.Endpoint && r.GenerateFromEndpointSlices != nil {
+						if r.Type == apishelper.Endpoint && r.GenerateFromEndpointSlices != nil {
 
 							selector, err := metav1.LabelSelectorAsSelector(r.GenerateFromEndpointSlices.Selector)
 							if err != nil {

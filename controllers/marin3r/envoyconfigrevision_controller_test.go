@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"testing"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -53,7 +53,7 @@ func TestEnvoyConfigRevisionReconciler_taintSelf(t *testing.T) {
 func Test_filterByAPIVersion(t *testing.T) {
 	type args struct {
 		obj     runtime.Object
-		version envoy.APIVersion
+		version apishelper.APIVersion
 	}
 	tests := []struct {
 		name string
@@ -66,10 +66,10 @@ func Test_filterByAPIVersion(t *testing.T) {
 				obj: &marin3rv1alpha1.EnvoyConfigRevision{
 					ObjectMeta: metav1.ObjectMeta{Name: "xx", Namespace: "xx"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				},
-				version: envoy.APIv3,
+				version: apishelper.APIv3,
 			},
 			want: true,
 		},
@@ -79,10 +79,10 @@ func Test_filterByAPIVersion(t *testing.T) {
 				obj: &marin3rv1alpha1.EnvoyConfigRevision{
 					ObjectMeta: metav1.ObjectMeta{Name: "xx", Namespace: "xx"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
-						EnvoyAPI: pointer.New(envoy.APIVersion("XX")),
+						EnvoyAPI: pointer.New(apishelper.APIVersion("XX")),
 					},
 				},
-				version: envoy.APIv3,
+				version: apishelper.APIv3,
 			},
 			want: false,
 		},

@@ -2,10 +2,10 @@ package discoveryservice
 
 import (
 	reconcilerutil "github.com/3scale-ops/basereconciler/util"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources_v3 "github.com/3scale-ops/marin3r/pkg/envoy/resources/v3"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	cache_types "github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource_v3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -48,7 +48,7 @@ func (s Snapshot) Consistent() error {
 	return s.v3.Consistent()
 }
 
-func (s Snapshot) SetResources(rType envoy.Type, resources []envoy.Resource) xdss.Snapshot {
+func (s Snapshot) SetResources(rType apishelper.Type, resources []apishelper.Resource) xdss.Snapshot {
 
 	items := make([]cache_types.Resource, 0, len(resources))
 	for _, r := range resources {
@@ -64,30 +64,30 @@ func (s Snapshot) SetResources(rType envoy.Type, resources []envoy.Resource) xds
 }
 
 // GetResources selects snapshot resources by type.
-func (s Snapshot) GetResources(rType envoy.Type) map[string]envoy.Resource {
+func (s Snapshot) GetResources(rType apishelper.Type) map[string]apishelper.Resource {
 
 	typeURLs := envoy_resources_v3.Mappings()
-	resources := map[string]envoy.Resource{}
+	resources := map[string]apishelper.Resource{}
 	for k, v := range s.v3.GetResources(typeURLs[rType]) {
-		resources[k] = v.(envoy.Resource)
+		resources[k] = v.(apishelper.Resource)
 	}
 	return resources
 }
 
 // GetVersion returns the version for a resource type.
-func (s Snapshot) GetVersion(rType envoy.Type) string {
+func (s Snapshot) GetVersion(rType apishelper.Type) string {
 	typeURLs := envoy_resources_v3.Mappings()
 	return s.v3.GetVersion(typeURLs[rType])
 }
 
 // SetVersion sets the version for a resource type.
-func (s Snapshot) SetVersion(rType envoy.Type, version string) {
+func (s Snapshot) SetVersion(rType apishelper.Type, version string) {
 	s.v3.Resources[v3CacheResources(rType)].Version = version
 }
 
-func (s Snapshot) recalculateVersion(rType envoy.Type) string {
+func (s Snapshot) recalculateVersion(rType apishelper.Type) string {
 	resources := map[string]string{}
-	encoder := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, envoy.APIv3)
+	encoder := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, apishelper.APIv3)
 	for n, r := range s.v3.Resources[v3CacheResources(rType)].Items {
 		j, _ := encoder.Marshal(r.Resource)
 		resources[n] = string(j)
@@ -98,17 +98,17 @@ func (s Snapshot) recalculateVersion(rType envoy.Type) string {
 	return ""
 }
 
-func v3CacheResources(rType envoy.Type) int {
-	types := map[envoy.Type]int{
-		envoy.Endpoint:        int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.Endpoint])),
-		envoy.Cluster:         int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.Cluster])),
-		envoy.Route:           int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.Route])),
-		envoy.ScopedRoute:     int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.ScopedRoute])),
-		envoy.VirtualHost:     int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.VirtualHost])),
-		envoy.Listener:        int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.Listener])),
-		envoy.Secret:          int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.Secret])),
-		envoy.Runtime:         int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.Runtime])),
-		envoy.ExtensionConfig: int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[envoy.ExtensionConfig])),
+func v3CacheResources(rType apishelper.Type) int {
+	types := map[apishelper.Type]int{
+		apishelper.Endpoint:        int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.Endpoint])),
+		apishelper.Cluster:         int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.Cluster])),
+		apishelper.Route:           int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.Route])),
+		apishelper.ScopedRoute:     int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.ScopedRoute])),
+		apishelper.VirtualHost:     int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.VirtualHost])),
+		apishelper.Listener:        int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.Listener])),
+		apishelper.Secret:          int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.Secret])),
+		apishelper.Runtime:         int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.Runtime])),
+		apishelper.ExtensionConfig: int(cache_v3.GetResponseType(envoy_resources_v3.Mappings()[apishelper.ExtensionConfig])),
 	}
 
 	return types[rType]

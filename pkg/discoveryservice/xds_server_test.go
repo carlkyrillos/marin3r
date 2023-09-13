@@ -17,6 +17,7 @@ package discoveryservice
 import (
 	"context"
 	"crypto/tls"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"reflect"
 	"testing"
 	"time"
@@ -24,7 +25,6 @@ import (
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	server_v3 "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/go-logr/logr"
@@ -93,7 +93,7 @@ func TestXdsServer_GetCache(t *testing.T) {
 		name    string
 		xdss    *XdsServer
 		want    xdss.Cache
-		version envoy.APIVersion
+		version apishelper.APIVersion
 	}{
 		{
 			"Gets the server's Cache",
@@ -107,7 +107,7 @@ func TestXdsServer_GetCache(t *testing.T) {
 				stats.New(),
 			},
 			xdss_v3.NewCache(),
-			envoy.APIv3,
+			apishelper.APIv3,
 		},
 	}
 	for _, tt := range tests {

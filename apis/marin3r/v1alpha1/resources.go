@@ -2,9 +2,9 @@ package v1alpha1
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,7 +32,7 @@ type Resource struct {
 	// Type is the type url for the protobuf message
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +kubebuilder:validation:Enum=listener;route;scopedRoute;cluster;endpoint;secret;runtime;extensionConfig;
-	Type envoy.Type `json:"type"`
+	Type apishelper.Type `json:"type"`
 	// Value is the protobufer message that configures the resource. The proto
 	// must match the envoy configuration API v3 specification for the given resource
 	// type (https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types)
@@ -109,49 +109,49 @@ func (in *EnvoyResources) Resources(serialization envoy_serializer.Serialization
 	resources := []Resource{}
 
 	for _, deprecatedResource := range in.Endpoints {
-		resource, err := (&deprecatedResource).Resource(envoy.Endpoint, serialization)
+		resource, err := (&deprecatedResource).Resource(apishelper.Endpoint, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
 		resources = append(resources, resource)
 	}
 	for _, deprecatedResource := range in.Clusters {
-		r, err := (&deprecatedResource).Resource(envoy.Cluster, serialization)
+		r, err := (&deprecatedResource).Resource(apishelper.Cluster, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
 		resources = append(resources, r)
 	}
 	for _, deprecatedResource := range in.Routes {
-		r, err := (&deprecatedResource).Resource(envoy.Route, serialization)
+		r, err := (&deprecatedResource).Resource(apishelper.Route, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
 		resources = append(resources, r)
 	}
 	for _, deprecatedResource := range in.ScopedRoutes {
-		r, err := (&deprecatedResource).Resource(envoy.ScopedRoute, serialization)
+		r, err := (&deprecatedResource).Resource(apishelper.ScopedRoute, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
 		resources = append(resources, r)
 	}
 	for _, deprecatedResource := range in.Listeners {
-		r, err := (&deprecatedResource).Resource(envoy.Listener, serialization)
+		r, err := (&deprecatedResource).Resource(apishelper.Listener, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
 		resources = append(resources, r)
 	}
 	for _, deprecatedResource := range in.Runtimes {
-		r, err := (&deprecatedResource).Resource(envoy.Runtime, serialization)
+		r, err := (&deprecatedResource).Resource(apishelper.Runtime, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
 		resources = append(resources, r)
 	}
 	for _, deprecatedResource := range in.ExtensionConfigs {
-		r, err := (&deprecatedResource).Resource(envoy.ExtensionConfig, serialization)
+		r, err := (&deprecatedResource).Resource(apishelper.ExtensionConfig, serialization)
 		if err != nil {
 			errList = append(errList, err)
 		}
@@ -159,7 +159,7 @@ func (in *EnvoyResources) Resources(serialization envoy_serializer.Serialization
 	}
 	for _, deprecatedResource := range in.Secrets {
 		r := Resource{
-			Type:                  envoy.Secret,
+			Type:                  apishelper.Secret,
 			GenerateFromTlsSecret: &deprecatedResource.Name,
 			Blueprint:             pointer.New(TlsCertificate),
 		}
@@ -190,7 +190,7 @@ type EnvoyResource struct {
 }
 
 // Transforms from the deprecated EnvoyResource struct to Resource
-func (res *EnvoyResource) Resource(rType envoy.Type, serialization envoy_serializer.Serialization) (Resource, error) {
+func (res *EnvoyResource) Resource(rType apishelper.Type, serialization envoy_serializer.Serialization) (Resource, error) {
 	var err error
 	var b []byte
 

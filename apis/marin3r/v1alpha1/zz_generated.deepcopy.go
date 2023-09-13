@@ -22,8 +22,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -168,7 +168,7 @@ func (in *EnvoyConfigRevisionSpec) DeepCopyInto(out *EnvoyConfigRevisionSpec) {
 	*out = *in
 	if in.EnvoyAPI != nil {
 		in, out := &in.EnvoyAPI, &out.EnvoyAPI
-		*out = new(envoy.APIVersion)
+		*out = new(apishelper.APIVersion)
 		**out = **in
 	}
 	if in.Serialization != nil {
@@ -251,7 +251,7 @@ func (in *EnvoyConfigSpec) DeepCopyInto(out *EnvoyConfigSpec) {
 	}
 	if in.EnvoyAPI != nil {
 		in, out := &in.EnvoyAPI, &out.EnvoyAPI
-		*out = new(envoy.APIVersion)
+		*out = new(apishelper.APIVersion)
 		**out = **in
 	}
 	if in.EnvoyResources != nil {

@@ -16,12 +16,12 @@ package discoveryservice
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"time"
 
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources_v3 "github.com/3scale-ops/marin3r/pkg/envoy/resources/v3"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	"github.com/3scale-ops/marin3r/pkg/util/backoff"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_service_discovery_v3 "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
@@ -110,10 +110,10 @@ func (cb *Callbacks) OnStreamResponse(ctx context.Context, id int64, req *envoy_
 	// Log resources when in debug mode
 	resources := []string{}
 	for _, r := range rsp.Resources {
-		j, _ := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, envoy.APIv3).Marshal(r)
+		j, _ := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, apishelper.APIv3).Marshal(r)
 		resources = append(resources, string(j))
 	}
-	if rsp.TypeUrl == envoy_resources_v3.Mappings()[envoy.Secret] {
+	if rsp.TypeUrl == envoy_resources_v3.Mappings()[apishelper.Secret] {
 		// Do not log secret contents
 		log.V(1).Info("Discovery Response", "ResourcesNames", req.ResourceNames, "Pod", podName)
 	} else {

@@ -1,20 +1,19 @@
 package envoy
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"reflect"
 	"testing"
-
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 )
 
 func TestMappings(t *testing.T) {
 	tests := []struct {
 		name string
-		want map[envoy.Type]string
+		want map[apishelper.Type]string
 	}{
 		{
 			name: "Returns the typeURL to resource types mapping",
-			want: map[envoy.Type]string{
+			want: map[apishelper.Type]string{
 				"listener":        "type.googleapis.com/envoy.config.listener.v3.Listener",
 				"route":           "type.googleapis.com/envoy.config.route.v3.RouteConfiguration",
 				"scopedRoute":     "type.googleapis.com/envoy.config.route.v3.ScopedRouteConfiguration",

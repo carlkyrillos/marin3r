@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"time"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/envoy/container/defaults"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	. "github.com/onsi/ginkgo/v2"
@@ -63,7 +63,7 @@ var _ = Describe("EnvoyDeployment controller", func() {
 		ec := &marin3rv1alpha1.EnvoyConfig{
 			ObjectMeta: metav1.ObjectMeta{Name: "config", Namespace: namespace},
 			Spec: marin3rv1alpha1.EnvoyConfigSpec{
-				EnvoyAPI:       pointer.New(envoy.APIv3),
+				EnvoyAPI:       pointer.New(apishelper.APIv3),
 				NodeID:         "test-node",
 				EnvoyResources: &marin3rv1alpha1.EnvoyResources{},
 			},

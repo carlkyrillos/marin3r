@@ -2,6 +2,7 @@ package reconcilers
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"testing"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	"github.com/davecgh/go-spew/spew"
 	resource_v3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -184,7 +184,7 @@ func TestIsStatusReconciled(t *testing.T) {
 						Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 							Version:  "xxxx",
 							NodeID:   "test",
-							EnvoyAPI: pointer.New(envoy.APIv3),
+							EnvoyAPI: pointer.New(apishelper.APIv3),
 						},
 						Status: marin3rv1alpha1.EnvoyConfigRevisionStatus{
 							ProvidesVersions: &marin3rv1alpha1.VersionTracker{Endpoints: "aaaa"},
@@ -214,7 +214,7 @@ func TestIsStatusReconciled(t *testing.T) {
 						Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 							Version:  "xxxx",
 							NodeID:   "test",
-							EnvoyAPI: pointer.New(envoy.APIv3),
+							EnvoyAPI: pointer.New(apishelper.APIv3),
 						},
 						Status: marin3rv1alpha1.EnvoyConfigRevisionStatus{
 							ProvidesVersions: &marin3rv1alpha1.VersionTracker{Endpoints: "aaaa"},
@@ -396,7 +396,7 @@ func Test_calculateRevisionTaintedCondition(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ecr", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 						NodeID:   "node",
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				},
 				vt: &marin3rv1alpha1.VersionTracker{
@@ -428,7 +428,7 @@ func Test_calculateRevisionTaintedCondition(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ecr", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 						NodeID:   "node",
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				},
 				vt: &marin3rv1alpha1.VersionTracker{
@@ -458,7 +458,7 @@ func Test_calculateRevisionTaintedCondition(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ecr", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 						NodeID:   "node",
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				},
 				vt: &marin3rv1alpha1.VersionTracker{
@@ -487,7 +487,7 @@ func Test_calculateRevisionTaintedCondition(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ecr", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 						NodeID:   "node",
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				}, vt: &marin3rv1alpha1.VersionTracker{},
 				dStats:     stats.NewWithItems(map[string]cache.Item{}, time.Now()),

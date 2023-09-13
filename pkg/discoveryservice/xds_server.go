@@ -18,13 +18,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net"
 	"time"
 
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	server_v3 "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/go-logr/logr"
@@ -181,12 +181,12 @@ func (xdss *XdsServer) Start(client kubernetes.Interface, namespace string) erro
 }
 
 // GetCache returns the Cache
-func (xdss *XdsServer) GetCache(version envoy.APIVersion) xdss.Cache {
+func (xdss *XdsServer) GetCache(version apishelper.APIVersion) xdss.Cache {
 	return xdss_v3.NewCacheFromSnapshotCache(xdss.snapshotCacheV3)
 }
 
 // GetCache returns the discovery stats
-func (xdss *XdsServer) GetDiscoveryStats(version envoy.APIVersion) *stats.Stats {
+func (xdss *XdsServer) GetDiscoveryStats(version apishelper.APIVersion) *stats.Stats {
 	return xdss.discoveryStatsV3
 }
 

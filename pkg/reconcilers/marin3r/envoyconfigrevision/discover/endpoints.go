@@ -2,11 +2,11 @@ package discover
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net"
 
 	"context"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
 	"github.com/go-logr/logr"
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -16,7 +16,7 @@ import (
 
 func Endpoints(ctx context.Context, cl client.Client, namespace string,
 	clusterName, portName string, labelSelector *metav1.LabelSelector,
-	generator envoy_resources.Generator, log logr.Logger) (envoy.Resource, error) {
+	generator envoy_resources.Generator, log logr.Logger) (apishelper.Resource, error) {
 
 	esl := &discoveryv1.EndpointSliceList{}
 
@@ -42,8 +42,8 @@ func Endpoints(ctx context.Context, cl client.Client, namespace string,
 	return endpoints, nil
 }
 
-func endpointSlices_to_UpstreamHosts(esl *discoveryv1.EndpointSliceList, portName string, log logr.Logger) ([]envoy.UpstreamHost, error) {
-	hosts := []envoy.UpstreamHost{}
+func endpointSlices_to_UpstreamHosts(esl *discoveryv1.EndpointSliceList, portName string, log logr.Logger) ([]apishelper.UpstreamHost, error) {
+	hosts := []apishelper.UpstreamHost{}
 	var port *int32
 
 	if esl.Items[0].AddressType == discoveryv1.AddressTypeFQDN {
@@ -71,7 +71,7 @@ func endpointSlices_to_UpstreamHosts(esl *discoveryv1.EndpointSliceList, portNam
 				continue
 			} else {
 
-				hosts = append(hosts, envoy.UpstreamHost{
+				hosts = append(hosts, apishelper.UpstreamHost{
 					IP:     ip,
 					Port:   uint32(*port),
 					Health: health(item.Conditions),
@@ -84,12 +84,12 @@ func endpointSlices_to_UpstreamHosts(esl *discoveryv1.EndpointSliceList, portNam
 	return hosts, nil
 }
 
-func health(ec discoveryv1.EndpointConditions) envoy.EndpointHealthStatus {
-	var health envoy.EndpointHealthStatus = envoy.HealthStatus_UNKNOWN
+func health(ec discoveryv1.EndpointConditions) apishelper.EndpointHealthStatus {
+	var health apishelper.EndpointHealthStatus = apishelper.HealthStatus_UNKNOWN
 
 	// 1. determine if terminating
 	if ec.Terminating != nil && *ec.Terminating {
-		health = envoy.HealthStatus_DRAINING
+		health = apishelper.HealthStatus_DRAINING
 
 	} else {
 
@@ -97,9 +97,9 @@ func health(ec discoveryv1.EndpointConditions) envoy.EndpointHealthStatus {
 		if ec.Serving != nil {
 
 			if *ec.Serving {
-				health = envoy.HealthStatus_HEALTHY
+				health = apishelper.HealthStatus_HEALTHY
 			} else {
-				health = envoy.HealthStatus_UNHEALTHY
+				health = apishelper.HealthStatus_UNHEALTHY
 			}
 
 		} else {
@@ -108,15 +108,15 @@ func health(ec discoveryv1.EndpointConditions) envoy.EndpointHealthStatus {
 			if ec.Ready != nil {
 
 				if *ec.Ready {
-					health = envoy.HealthStatus_HEALTHY
+					health = apishelper.HealthStatus_HEALTHY
 				} else {
-					health = envoy.HealthStatus_UNHEALTHY
+					health = apishelper.HealthStatus_UNHEALTHY
 				}
 
 			} else {
 				// neither 'ready' nor 'serving' fields availabel, unable
 				// to determine health
-				health = envoy.HealthStatus_UNKNOWN
+				health = apishelper.HealthStatus_UNKNOWN
 			}
 
 		}

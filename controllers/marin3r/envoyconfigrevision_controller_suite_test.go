@@ -3,12 +3,12 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"time"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	xdss "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-ops/marin3r/pkg/util/test"
@@ -81,9 +81,9 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   nodeID,
 					Version:  "xxxx",
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: pointer.New(apishelper.APIv3),
 					Resources: []marin3rv1alpha1.Resource{
-						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension(`{"cluster_name": "endpoint"}`)},
+						{Type: apishelper.Endpoint, Value: k8sutil.StringtoRawExtension(`{"cluster_name": "endpoint"}`)},
 					}},
 			}
 			err := k8sClient.Create(context.Background(), ecr)
@@ -130,7 +130,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 					return err
 				}, 60*time.Second, 5*time.Second).ShouldNot(HaveOccurred())
 
-				wantSnap := xdss_v3.NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
+				wantSnap := xdss_v3.NewSnapshot().SetResources(apishelper.Endpoint, []apishelper.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				})
 				Expect(testutil.SnapshotsAreEqual(gotV3Snap, wantSnap)).To(BeTrue())
@@ -162,9 +162,9 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   nodeID,
 					Version:  "xxxx",
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: pointer.New(apishelper.APIv3),
 					Resources: []marin3rv1alpha1.Resource{
-						{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+						{Type: apishelper.Secret, GenerateFromTlsSecret: pointer.New("secret")},
 					},
 				},
 			}
@@ -185,7 +185,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition))
 
-			wantSnap := xdss_v3.NewSnapshot().SetResources(envoy.Secret, []envoy.Resource{
+			wantSnap := xdss_v3.NewSnapshot().SetResources(apishelper.Secret, []apishelper.Resource{
 				&envoy_extensions_transport_sockets_tls_v3.Secret{
 					Name: "secret",
 					Type: &envoy_extensions_transport_sockets_tls_v3.Secret_TlsCertificate{
@@ -226,7 +226,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 					return string(secret.Data["tls.crt"]) == "new-cert"
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
-				wantSnap := xdss_v3.NewSnapshot().SetResources(envoy.Secret, []envoy.Resource{
+				wantSnap := xdss_v3.NewSnapshot().SetResources(apishelper.Secret, []apishelper.Resource{
 					&envoy_extensions_transport_sockets_tls_v3.Secret{
 						Name: "secret",
 						Type: &envoy_extensions_transport_sockets_tls_v3.Secret_TlsCertificate{
@@ -266,7 +266,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 					NodeID:  nodeID,
 					Version: "xxxx",
 					Resources: []marin3rv1alpha1.Resource{
-						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
+						{Type: apishelper.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
 					}},
 			}
 			err := k8sClient.Create(context.Background(), ecr)
@@ -329,7 +329,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 					NodeID:  nodeID,
 					Version: "xxxx",
 					Resources: []marin3rv1alpha1.Resource{
-						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
+						{Type: apishelper.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
 					}},
 			}
 			err := k8sClient.Create(context.Background(), ecr)
@@ -393,7 +393,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Expect(err).ToNot(HaveOccurred())
 				patch := client.MergeFrom(ecr.DeepCopy())
 				ecr.Spec.Resources = []marin3rv1alpha1.Resource{
-					{Type: envoy.Cluster, Value: k8sutil.StringtoRawExtension("{\"wrong_key\": \"wrong_value\"}")},
+					{Type: apishelper.Cluster, Value: k8sutil.StringtoRawExtension("{\"wrong_key\": \"wrong_value\"}")},
 				}
 				err = k8sClient.Patch(context.Background(), ecr, patch)
 				Expect(err).ToNot(HaveOccurred())
@@ -423,7 +423,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				err := k8sClient.Get(context.Background(), key, ecr)
 				Expect(err).ToNot(HaveOccurred())
 				patch := client.MergeFrom(ecr.DeepCopy())
-				ecr.Spec.Resources = []marin3rv1alpha1.Resource{{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")}}
+				ecr.Spec.Resources = []marin3rv1alpha1.Resource{{Type: apishelper.Secret, GenerateFromTlsSecret: pointer.New("secret")}}
 				err = k8sClient.Patch(context.Background(), ecr, patch)
 				Expect(err).ToNot(HaveOccurred())
 

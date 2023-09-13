@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net/http"
 	"time"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-ops/marin3r/test/e2e/util"
 	. "github.com/onsi/ginkgo/v2"
@@ -100,12 +100,12 @@ var _ = Describe("Envoy sidecars", func() {
 
 			By("applaying an EnvoyConfig that will configure the envoy sidecar through service discovery")
 			key := types.NamespacedName{Name: "nginx-envoyconfig", Namespace: testNamespace}
-			ec = testutil.GenerateEnvoyConfig(key, nodeID, envoy.APIv3,
-				[]envoy.Resource{testutil.EndpointV3("nginx", "127.0.0.1", 80)},
-				[]envoy.Resource{testutil.ClusterWithEdsV3("nginx")},
-				[]envoy.Resource{testutil.ProxyPassRouteV3("proxypass", "nginx")},
-				[]envoy.Resource{testutil.HTTPListener("http", "proxypass", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), nil)},
-				[]envoy.Resource{testutil.HTTPFilterRouter("router_filter")},
+			ec = testutil.GenerateEnvoyConfig(key, nodeID, apishelper.APIv3,
+				[]apishelper.Resource{testutil.EndpointV3("nginx", "127.0.0.1", 80)},
+				[]apishelper.Resource{testutil.ClusterWithEdsV3("nginx")},
+				[]apishelper.Resource{testutil.ProxyPassRouteV3("proxypass", "nginx")},
+				[]apishelper.Resource{testutil.HTTPListener("http", "proxypass", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), nil)},
+				[]apishelper.Resource{testutil.HTTPFilterRouter("router_filter")},
 				nil,
 				nil,
 			)

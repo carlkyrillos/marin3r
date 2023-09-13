@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net/http"
 	"time"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/envoy/container/defaults"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-ops/marin3r/test/e2e/util"
@@ -99,12 +99,12 @@ var _ = Describe("EnvoyDeployment", func() {
 
 			By("applying an EnvoyConfig that will configure the envoy Deployment through service discovery")
 			key := types.NamespacedName{Name: "envoyconfig", Namespace: testNamespace}
-			ec = testutil.GenerateEnvoyConfig(key, nodeID, envoy.APIv3,
+			ec = testutil.GenerateEnvoyConfig(key, nodeID, apishelper.APIv3,
 				nil,
-				[]envoy.Resource{testutil.ClusterWithEdsV3("nginx")},
-				[]envoy.Resource{testutil.ProxyPassRouteV3("proxypass", "nginx")},
-				[]envoy.Resource{testutil.HTTPListener("http", "proxypass", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), nil)},
-				[]envoy.Resource{testutil.HTTPFilterRouter("router_filter")},
+				[]apishelper.Resource{testutil.ClusterWithEdsV3("nginx")},
+				[]apishelper.Resource{testutil.ProxyPassRouteV3("proxypass", "nginx")},
+				[]apishelper.Resource{testutil.HTTPListener("http", "proxypass", "router_filter", testutil.GetAddressV3("0.0.0.0", envoyListenerPort), nil)},
+				[]apishelper.Resource{testutil.HTTPFilterRouter("router_filter")},
 				nil,
 				[]testutil.EndpointDiscovery{{ClusterName: "nginx", PortName: "http", LabelKey: "kubernetes.io/service-name", LabelValue: "nginx"}},
 			)

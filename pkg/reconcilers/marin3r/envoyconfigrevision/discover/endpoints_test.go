@@ -2,11 +2,11 @@ package discover
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net"
 	"reflect"
 	"testing"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -33,7 +33,7 @@ func TestEndpoints(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    envoy.Resource
+		want    apishelper.Resource
 		wantErr bool
 	}{
 		{
@@ -69,7 +69,7 @@ func TestEndpoints(t *testing.T) {
 				clusterName:   "cluster",
 				portName:      "port",
 				labelSelector: &metav1.LabelSelector{MatchLabels: map[string]string{"key": "value"}},
-				generator:     envoy_resources.NewGenerator(envoy.APIv3),
+				generator:     envoy_resources.NewGenerator(apishelper.APIv3),
 				log:           ctrl.Log.WithName("test"),
 			},
 			want: &envoy_config_endpoint_v3.ClusterLoadAssignment{
@@ -146,7 +146,7 @@ func TestEndpoints(t *testing.T) {
 				clusterName:   "cluster",
 				portName:      "non-existent-port",
 				labelSelector: &metav1.LabelSelector{MatchLabels: map[string]string{"key": "value"}},
-				generator:     envoy_resources.NewGenerator(envoy.APIv3),
+				generator:     envoy_resources.NewGenerator(apishelper.APIv3),
 				log:           ctrl.Log.WithName("test"),
 			},
 			want:    nil,
@@ -181,7 +181,7 @@ func TestEndpoints(t *testing.T) {
 				clusterName:   "cluster",
 				portName:      "non-existent-port",
 				labelSelector: &metav1.LabelSelector{MatchLabels: map[string]string{"key": "value"}},
-				generator:     envoy_resources.NewGenerator(envoy.APIv3),
+				generator:     envoy_resources.NewGenerator(apishelper.APIv3),
 				log:           ctrl.Log.WithName("test"),
 			},
 			want:    nil,
@@ -211,7 +211,7 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []envoy.UpstreamHost
+		want    []apishelper.UpstreamHost
 		wantErr bool
 	}{
 		{
@@ -258,26 +258,26 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 				portName: "port1",
 				log:      ctrl.Log.WithName("test"),
 			},
-			want: []envoy.UpstreamHost{
+			want: []apishelper.UpstreamHost{
 				{
 					IP:     net.ParseIP("127.0.0.1"),
 					Port:   1001,
-					Health: envoy.HealthStatus_HEALTHY,
+					Health: apishelper.HealthStatus_HEALTHY,
 				},
 				{
 					IP:     net.ParseIP("127.0.0.2"),
 					Port:   1001,
-					Health: envoy.HealthStatus_HEALTHY,
+					Health: apishelper.HealthStatus_HEALTHY,
 				},
 				{
 					IP:     net.ParseIP("127.0.0.3"),
 					Port:   1001,
-					Health: envoy.HealthStatus_HEALTHY,
+					Health: apishelper.HealthStatus_HEALTHY,
 				},
 				{
 					IP:     net.ParseIP("127.0.0.4"),
 					Port:   1001,
-					Health: envoy.HealthStatus_UNHEALTHY,
+					Health: apishelper.HealthStatus_UNHEALTHY,
 				},
 			},
 			wantErr: false,
@@ -333,10 +333,10 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 				portName: "port1",
 				log:      ctrl.Log.WithName("test"),
 			},
-			want: []envoy.UpstreamHost{{
+			want: []apishelper.UpstreamHost{{
 				IP:     net.ParseIP("127.0.0.2"),
 				Port:   1001,
-				Health: envoy.HealthStatus_HEALTHY,
+				Health: apishelper.HealthStatus_HEALTHY,
 			}},
 			wantErr: false,
 		},
@@ -362,7 +362,7 @@ func Test_health(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want envoy.EndpointHealthStatus
+		want apishelper.EndpointHealthStatus
 	}{
 		{
 			name: "HEALTHY",
@@ -373,7 +373,7 @@ func Test_health(t *testing.T) {
 					Terminating: pointer.New(false),
 				},
 			},
-			want: envoy.HealthStatus_HEALTHY,
+			want: apishelper.HealthStatus_HEALTHY,
 		},
 		{
 			name: "HEALTHY",
@@ -383,7 +383,7 @@ func Test_health(t *testing.T) {
 					Serving: pointer.New(true),
 				},
 			},
-			want: envoy.HealthStatus_HEALTHY,
+			want: apishelper.HealthStatus_HEALTHY,
 		},
 		{
 			name: "HEALTHY",
@@ -392,7 +392,7 @@ func Test_health(t *testing.T) {
 					Ready: pointer.New(true),
 				},
 			},
-			want: envoy.HealthStatus_HEALTHY,
+			want: apishelper.HealthStatus_HEALTHY,
 		},
 		{
 			name: "UNHEALTHY",
@@ -401,7 +401,7 @@ func Test_health(t *testing.T) {
 					Ready: pointer.New(false),
 				},
 			},
-			want: envoy.HealthStatus_UNHEALTHY,
+			want: apishelper.HealthStatus_UNHEALTHY,
 		},
 		{
 			name: "UNHEALTHY",
@@ -410,14 +410,14 @@ func Test_health(t *testing.T) {
 					Serving: pointer.New(false),
 				},
 			},
-			want: envoy.HealthStatus_UNHEALTHY,
+			want: apishelper.HealthStatus_UNHEALTHY,
 		},
 		{
 			name: "UNKNOWN",
 			args: args{
 				ec: discoveryv1.EndpointConditions{},
 			},
-			want: envoy.HealthStatus_UNKNOWN,
+			want: apishelper.HealthStatus_UNKNOWN,
 		},
 		{
 			name: "DRAINING",
@@ -426,7 +426,7 @@ func Test_health(t *testing.T) {
 					Terminating: pointer.New(true),
 				},
 			},
-			want: envoy.HealthStatus_DRAINING,
+			want: apishelper.HealthStatus_DRAINING,
 		},
 	}
 	for _, tt := range tests {

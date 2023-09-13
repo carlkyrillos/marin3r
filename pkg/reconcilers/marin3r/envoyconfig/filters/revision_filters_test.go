@@ -1,10 +1,10 @@
 package filters
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"reflect"
 	"testing"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -131,7 +131,7 @@ func TestEnvoyAPIFilter_ApplyToLabelSelector(t *testing.T) {
 
 func TestByEnvoyAPI(t *testing.T) {
 	type args struct {
-		envoyAPI envoy.APIVersion
+		envoyAPI apishelper.APIVersion
 	}
 	tests := []struct {
 		name string
@@ -140,7 +140,7 @@ func TestByEnvoyAPI(t *testing.T) {
 	}{
 		{
 			name: "Returns a EnvoyAPIFilter",
-			args: args{envoyAPI: envoy.APIv3},
+			args: args{envoyAPI: apishelper.APIv3},
 			want: &EnvoyAPIFilter{Value: "v3"},
 		},
 	}

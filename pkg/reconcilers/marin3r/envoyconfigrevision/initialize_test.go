@@ -1,10 +1,10 @@
 package reconcilers
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"testing"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -30,7 +30,7 @@ func TestIsInitialized(t *testing.T) {
 						Finalizers: []string{marin3rv1alpha1.EnvoyConfigRevisionFinalizer},
 					},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: pointer.New(apishelper.APIv3),
 					},
 				}
 			},

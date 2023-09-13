@@ -1,7 +1,7 @@
 package filters
 
 import (
-	"github.com/3scale-ops/marin3r/pkg/envoy"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -64,6 +64,6 @@ func (ef *EnvoyAPIFilter) ApplyToLabelSelector(selector client.MatchingLabels) {
 }
 
 // ByEnvoyAPI returns a NodeIDFilter
-func ByEnvoyAPI(envoyAPI envoy.APIVersion) RevisionFilter {
+func ByEnvoyAPI(envoyAPI apishelper.APIVersion) RevisionFilter {
 	return &EnvoyAPIFilter{Value: envoyAPI.String()}
 }

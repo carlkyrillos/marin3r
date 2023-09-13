@@ -2,12 +2,12 @@ package reconcilers
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"reflect"
 	"testing"
 
 	reconcilerutil "github.com/3scale-ops/basereconciler/util"
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/reconcilers/marin3r/envoyconfig/filters"
 	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
@@ -162,12 +162,12 @@ func TestRevisionReconciler_EnvoyAPI(t *testing.T) {
 	tests := []struct {
 		name string
 		r    RevisionReconciler
-		want envoy.APIVersion
+		want apishelper.APIVersion
 	}{
 		{
 			"Returns the envoy API version of the EnvoyConfig instance to reconcile",
-			testRevisionReconcilerBuilder(s, &marin3rv1alpha1.EnvoyConfig{Spec: marin3rv1alpha1.EnvoyConfigSpec{EnvoyAPI: pointer.New(envoy.APIv3)}}),
-			envoy.APIv3,
+			testRevisionReconcilerBuilder(s, &marin3rv1alpha1.EnvoyConfig{Spec: marin3rv1alpha1.EnvoyConfigSpec{EnvoyAPI: pointer.New(apishelper.APIv3)}}),
+			apishelper.APIv3,
 		},
 	}
 	for _, tt := range tests {
@@ -396,7 +396,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 							Name: "ecr1", Namespace: "test",
 							Labels: map[string]string{
 								filters.NodeIDTag:   "node",
-								filters.EnvoyAPITag: envoy.APIv3.String(),
+								filters.EnvoyAPITag: apishelper.APIv3.String(),
 								filters.VersionTag:  reconcilerutil.Hash([]marin3rv1alpha1.Resource{}),
 							},
 						},
@@ -408,7 +408,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 							Name: "ecr2", Namespace: "test",
 							Labels: map[string]string{
 								filters.NodeIDTag:   "node",
-								filters.EnvoyAPITag: envoy.APIv3.String(),
+								filters.EnvoyAPITag: apishelper.APIv3.String(),
 								filters.VersionTag:  reconcilerutil.Hash([]marin3rv1alpha1.Resource{}),
 							},
 						},
@@ -421,7 +421,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigSpec{
 						NodeID:    "node",
-						EnvoyAPI:  pointer.New(envoy.APIv3),
+						EnvoyAPI:  pointer.New(apishelper.APIv3),
 						Resources: []marin3rv1alpha1.Resource{},
 					},
 				},
@@ -441,7 +441,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 							Name: "ecr1", Namespace: "test",
 							Labels: map[string]string{
 								filters.NodeIDTag:   "node",
-								filters.EnvoyAPITag: envoy.APIv3.String(),
+								filters.EnvoyAPITag: apishelper.APIv3.String(),
 								filters.VersionTag:  reconcilerutil.Hash([]marin3rv1alpha1.Resource{}),
 							},
 						},
@@ -454,7 +454,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigSpec{
 						NodeID:    "node",
-						EnvoyAPI:  pointer.New(envoy.APIv3),
+						EnvoyAPI:  pointer.New(apishelper.APIv3),
 						Resources: []marin3rv1alpha1.Resource{},
 					},
 				},
@@ -770,18 +770,18 @@ func TestRevisionReconciler_newRevisionForCurrentResources(t *testing.T) {
 			),
 			want: &marin3rv1alpha1.EnvoyConfigRevision{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "node-v3-6b64fb99b6",
+					Name:      "node-v3-799c6658c6",
 					Namespace: "test",
 					Labels: map[string]string{
-						filters.EnvoyAPITag: envoy.APIv3.String(),
+						filters.EnvoyAPITag: apishelper.APIv3.String(),
 						filters.NodeIDTag:   "node",
-						filters.VersionTag:  "6b64fb99b6",
+						filters.VersionTag:  "799c6658c6",
 					},
 				},
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   "node",
-					EnvoyAPI: pointer.New(envoy.APIv3),
-					Version:  "6b64fb99b6",
+					EnvoyAPI: pointer.New(apishelper.APIv3),
+					Version:  "799c6658c6",
 					Resources: []marin3rv1alpha1.Resource{
 						{
 							Type:  "endpoint",

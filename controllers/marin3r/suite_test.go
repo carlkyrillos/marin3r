@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"os"
 	"path/filepath"
 	"testing"
@@ -27,7 +28,6 @@ import (
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/goombaio/namegenerator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -110,7 +110,7 @@ var _ = BeforeSuite(func() {
 		Log:            ctrl.Log.WithName("controllers").WithName("envoyconfigrevision_v3"),
 		Scheme:         mgr.GetScheme(),
 		XdsCache:       xdss_v3.NewCache(),
-		APIVersion:     envoy.APIv3,
+		APIVersion:     apishelper.APIv3,
 		DiscoveryStats: stats.New(),
 	}
 	err = ecrV3Reconciler.SetupWithManager(mgr)

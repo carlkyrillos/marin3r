@@ -2,8 +2,7 @@ package discoveryservice
 
 import (
 	"context"
-
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 )
 
 // Cache is a snapshot-based cache that maintains a single versioned
@@ -26,8 +25,8 @@ type Cache interface {
 // from the snapshot may be delivered to the proxy in arbitrary order.
 type Snapshot interface {
 	Consistent() error
-	SetResources(envoy.Type, []envoy.Resource) Snapshot
-	GetResources(envoy.Type) map[string]envoy.Resource
-	GetVersion(envoy.Type) string
-	SetVersion(envoy.Type, string)
+	SetResources(apishelper.Type, []apishelper.Resource) Snapshot
+	GetResources(apishelper.Type) map[string]apishelper.Resource
+	GetVersion(apishelper.Type) string
+	SetVersion(apishelper.Type, string)
 }

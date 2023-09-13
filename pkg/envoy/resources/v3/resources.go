@@ -1,7 +1,7 @@
 package envoy
 
 import (
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -16,31 +16,31 @@ import (
 type Generator struct{}
 
 // New returns an empty resource of the given type
-func (g Generator) New(rType envoy.Type) envoy.Resource {
+func (g Generator) New(rType apishelper.Type) apishelper.Resource {
 
 	switch rType {
-	case envoy.Endpoint:
+	case apishelper.Endpoint:
 		return &envoy_config_endpoint_v3.ClusterLoadAssignment{}
 
-	case envoy.Cluster:
+	case apishelper.Cluster:
 		return &envoy_config_cluster_v3.Cluster{}
 
-	case envoy.Route:
+	case apishelper.Route:
 		return &envoy_config_route_v3.RouteConfiguration{}
 
-	case envoy.ScopedRoute:
+	case apishelper.ScopedRoute:
 		return &envoy_config_route_v3.ScopedRouteConfiguration{}
 
-	case envoy.Listener:
+	case apishelper.Listener:
 		return &envoy_config_listener_v3.Listener{}
 
-	case envoy.Runtime:
+	case apishelper.Runtime:
 		return &envoy_service_runtime_v3.Runtime{}
 
-	case envoy.Secret:
+	case apishelper.Secret:
 		return &envoy_extensions_transport_sockets_tls_v3.Secret{}
 
-	case envoy.ExtensionConfig:
+	case apishelper.ExtensionConfig:
 		return &envoy_config_core_v3.TypedExtensionConfig{}
 
 	}
@@ -50,7 +50,7 @@ func (g Generator) New(rType envoy.Type) envoy.Resource {
 }
 
 // NewTlsCertificateSecret generates a new envoy secret given the certificate and key.
-func (g Generator) NewTlsCertificateSecret(name, privateKey, certificateChain string) envoy.Resource {
+func (g Generator) NewTlsCertificateSecret(name, privateKey, certificateChain string) apishelper.Resource {
 
 	return &envoy_extensions_transport_sockets_tls_v3.Secret{
 		Name: name,
@@ -68,7 +68,7 @@ func (g Generator) NewTlsCertificateSecret(name, privateKey, certificateChain st
 }
 
 // NewValidationContextSecret generates a new envoy validation context given the certificate and key.
-func (g Generator) NewValidationContextSecret(name, certificateChain string) envoy.Resource {
+func (g Generator) NewValidationContextSecret(name, certificateChain string) apishelper.Resource {
 
 	return &envoy_extensions_transport_sockets_tls_v3.Secret{
 		Name: name,
@@ -84,7 +84,7 @@ func (g Generator) NewValidationContextSecret(name, certificateChain string) env
 
 // NewSecretFromPath returns an envoy secret that uses path sds to get the certificate from
 // a path and reload it whenever the certificate files change
-func (g Generator) NewSecretFromPath(name, certificateChainPath, privateKeyPath string) envoy.Resource {
+func (g Generator) NewSecretFromPath(name, certificateChainPath, privateKeyPath string) apishelper.Resource {
 
 	return &envoy_extensions_transport_sockets_tls_v3.Secret{
 		Name: name,
@@ -104,7 +104,7 @@ func (g Generator) NewSecretFromPath(name, certificateChainPath, privateKeyPath 
 	}
 }
 
-func (g Generator) NewClusterLoadAssignment(clusterName string, hosts ...envoy.UpstreamHost) envoy.Resource {
+func (g Generator) NewClusterLoadAssignment(clusterName string, hosts ...apishelper.UpstreamHost) apishelper.Resource {
 
 	return &envoy_config_endpoint_v3.ClusterLoadAssignment{
 		ClusterName: clusterName,
@@ -122,7 +122,7 @@ func (g Generator) NewClusterLoadAssignment(clusterName string, hosts ...envoy.U
 	}
 }
 
-func LbEndpoint(host envoy.UpstreamHost) envoy.Resource {
+func LbEndpoint(host apishelper.UpstreamHost) apishelper.Resource {
 	return &envoy_config_endpoint_v3.LbEndpoint{
 		HostIdentifier: &envoy_config_endpoint_v3.LbEndpoint_Endpoint{
 			Endpoint: &envoy_config_endpoint_v3.Endpoint{

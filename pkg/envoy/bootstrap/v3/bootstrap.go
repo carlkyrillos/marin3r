@@ -1,12 +1,12 @@
 package envoy
 
 import (
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer_v3 "github.com/3scale-ops/marin3r/pkg/apishelper/serializer/v3"
 	"time"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
 	envoy_bootstrap_options "github.com/3scale-ops/marin3r/pkg/envoy/bootstrap/options"
 	envoy_resources "github.com/3scale-ops/marin3r/pkg/envoy/resources"
-	envoy_serializer_v3 "github.com/3scale-ops/marin3r/pkg/envoy/serializer/v3"
 	envoy_config_accesslog_v3 "github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
 	envoy_config_bootstrap_v3 "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v3"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -215,7 +215,7 @@ func (c *Config) GenerateStatic() (string, error) {
 // filesystem discovery of certificates.
 func (c *Config) GenerateSdsResources() (map[string]string, error) {
 
-	generator := envoy_resources.NewGenerator(envoy.APIv3)
+	generator := envoy_resources.NewGenerator(apishelper.APIv3)
 	secret := generator.NewSecretFromPath("xds_client_certificate", c.Options.XdsClientCertificatePath, c.Options.XdsClientCertificateKeyPath)
 
 	a, err := anypb.New(secret)

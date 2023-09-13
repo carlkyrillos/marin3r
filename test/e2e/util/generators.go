@@ -2,12 +2,12 @@ package e2e
 
 import (
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"time"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/3scale-ops/marin3r/pkg/envoy/container/defaults"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
 	"github.com/3scale-ops/marin3r/pkg/util/pki"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
@@ -187,8 +187,8 @@ type EndpointDiscovery struct {
 	ClusterName, PortName, LabelKey, LabelValue string
 }
 
-func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy.APIVersion,
-	staticEndpoints, clusters, routes, listeners, extension []envoy.Resource,
+func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI apishelper.APIVersion,
+	staticEndpoints, clusters, routes, listeners, extension []apishelper.Resource,
 	secrets []string, eds []EndpointDiscovery) *marin3rv1alpha1.EnvoyConfig {
 	m := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, envoyAPI)
 
@@ -212,12 +212,12 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			panic(err)
 		}
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension(json)})
+			Type: apishelper.Endpoint, Value: k8sutil.StringtoRawExtension(json)})
 	}
 
 	for _, e := range eds {
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type: envoy.Endpoint,
+			Type: apishelper.Endpoint,
 			GenerateFromEndpointSlices: &marin3rv1alpha1.GenerateFromEndpointSlices{
 				Selector:    &metav1.LabelSelector{MatchLabels: map[string]string{e.LabelKey: e.LabelValue}},
 				ClusterName: e.ClusterName,
@@ -232,7 +232,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			panic(err)
 		}
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type: envoy.Cluster, Value: k8sutil.StringtoRawExtension(json)})
+			Type: apishelper.Cluster, Value: k8sutil.StringtoRawExtension(json)})
 	}
 
 	for _, resource := range routes {
@@ -241,7 +241,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			panic(err)
 		}
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type: envoy.Route, Value: k8sutil.StringtoRawExtension(json)})
+			Type: apishelper.Route, Value: k8sutil.StringtoRawExtension(json)})
 	}
 
 	for _, resource := range listeners {
@@ -250,12 +250,12 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			panic(err)
 		}
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type: envoy.Listener, Value: k8sutil.StringtoRawExtension(json)})
+			Type: apishelper.Listener, Value: k8sutil.StringtoRawExtension(json)})
 	}
 
 	for _, name := range secrets {
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type:                  envoy.Secret,
+			Type:                  apishelper.Secret,
 			GenerateFromTlsSecret: pointer.New(name),
 		})
 	}
@@ -266,7 +266,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			panic(err)
 		}
 		resources = append(resources, marin3rv1alpha1.Resource{
-			Type: envoy.ExtensionConfig, Value: k8sutil.StringtoRawExtension(json)})
+			Type: apishelper.ExtensionConfig, Value: k8sutil.StringtoRawExtension(json)})
 	}
 
 	ec.Spec.Resources = resources

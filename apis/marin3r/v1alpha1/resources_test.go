@@ -1,10 +1,10 @@
 package v1alpha1
 
 import (
+	envoy_serializer "github.com/3scale-ops/marin3r/pkg/apishelper/serializer"
 	"reflect"
 	"testing"
 
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
 	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"
 )

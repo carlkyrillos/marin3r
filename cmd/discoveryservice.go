@@ -21,6 +21,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/3scale-ops/marin3r/pkg/apishelper"
 	"net/http"
 	"os"
 	"sync"
@@ -30,7 +31,6 @@ import (
 	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
 	marin3rcontroller "github.com/3scale-ops/marin3r/controllers/marin3r"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice"
-	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -155,13 +155,13 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 
 	if err := (&marin3rcontroller.EnvoyConfigRevisionReconciler{
 		Client:         mgr.GetClient(),
-		Log:            ctrl.Log.WithName("controllers").WithName(fmt.Sprintf("envoyconfigrevision_%s", string(envoy.APIv3))),
+		Log:            ctrl.Log.WithName("controllers").WithName(fmt.Sprintf("envoyconfigrevision_%s", string(apishelper.APIv3))),
 		Scheme:         mgr.GetScheme(),
-		XdsCache:       xdss.GetCache(envoy.APIv3),
-		APIVersion:     envoy.APIv3,
-		DiscoveryStats: xdss.GetDiscoveryStats(envoy.APIv3),
+		XdsCache:       xdss.GetCache(apishelper.APIv3),
+		APIVersion:     apishelper.APIv3,
+		DiscoveryStats: xdss.GetDiscoveryStats(apishelper.APIv3),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", fmt.Sprintf("envoyconfigrevision_%s", string(envoy.APIv3)))
+		setupLog.Error(err, "unable to create controller", "controller", fmt.Sprintf("envoyconfigrevision_%s", string(apishelper.APIv3)))
 		os.Exit(1)
 	}
 
